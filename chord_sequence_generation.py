@@ -92,7 +92,7 @@ def main(params):
 
   # Import .mat file
   dataset_root = os.path.join('data', dataset)
-  mat_path = os.path.join(dataset_root, 'augmented_futari.mat')
+  mat_path = os.path.join(dataset_root, 'data.mat')
   data_mat = sio.loadmat(mat_path)
   chords_per_part = 2
   chords_per_bar = 4
