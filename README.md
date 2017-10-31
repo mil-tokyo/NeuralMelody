@@ -8,6 +8,7 @@ This repository is a slight modification of NeuralTalk(https://github.com/karpat
 
 ## Dependencies
 **pretty-midi**(https://github.com/craffel/pretty-midi)
+
 **hmmlearn**
 
 ## Usage
