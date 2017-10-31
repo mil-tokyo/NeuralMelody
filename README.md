@@ -1,5 +1,5 @@
 ## Overview
-This repository is a slight modification of NeuralTalk(https://github.com/karpathy/neuraltalk).
+This repository is a slight modification of [NeuralTalk](https://github.com/karpathy/neuraltalk).
 
 - The **input** is a two-hot vector in which the first 1 corresponds to a certain chord progression of 2-bar lengths (ex: C - Am), and the second 1 corresponds to the part annotation, e.g., verse, chorus, etc.
 
@@ -7,9 +7,9 @@ This repository is a slight modification of NeuralTalk(https://github.com/karpat
 
 
 ## Dependencies
-**pretty-midi**(https://github.com/craffel/pretty-midi)
+- **[pretty-midi](https://github.com/craffel/pretty-midi)**
 
-**hmmlearn**
+- **[hmmlearn](https://github.com/hmmlearn/hmmlearn)**
 
 ## Usage
 - To train
