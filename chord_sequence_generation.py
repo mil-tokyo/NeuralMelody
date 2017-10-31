@@ -7,7 +7,6 @@ import argparse
 import scipy.io as sio
 import numpy as np
 from hmmlearn.hmm import MultinomialHMM
-import tensorflow as tf
 from sklearn.utils import check_random_state
 
 # import matplotlib.pylab as plt
