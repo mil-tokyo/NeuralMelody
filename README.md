@@ -12,18 +12,23 @@ This repository is a slight modification of NeuralTalk(https://github.com/karpat
 
 ## Usage
 - To train
+
   `python train.py`
 
 - To deactivate regularization on pitch range
+
   `python train.py --reg_range_coeff 0`
 
-- To set pitch range for regularization (default is 60~72(
+- To set pitch range for regularization (default is 60~72)
+
   `python train.py --reg_range_min your_min_val --reg_range_max your_max_val`
 
 - To generate MIDI file
+
   `python generate_midi.py cv/checkpoint_file`
 
 - To generate MIDI file with HMM-generated input (by default, song will be generated based on our pre-set test input)
+
   `python generate_midi.py cv/checkpoint_file gen_chords True`
 
 
