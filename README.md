@@ -18,7 +18,7 @@ This repository is a slight modification of NeuralTalk(https://github.com/karpat
   `python train.py --reg_range_coeff 0`
 
 - To set pitch range for regularization (default is 60~72(
-  `python train.py --reg_range_min your_min_val --reg_range_max your_max_val
+  `python train.py --reg_range_min your_min_val --reg_range_max your_max_val`
 
 - To generate MIDI file
   `python generate_midi.py cv/checkpoint_file`
