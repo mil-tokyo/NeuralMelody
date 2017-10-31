@@ -35,6 +35,8 @@ This repository is a slight modification of NeuralTalk(https://github.com/karpat
 
 - Notes are inserted to MIDI files on a real-valued time instead of discrete musical lengths, so make sure to quantize it on any sequencer (e.g. GarageBand). 1/16 is recommended. 
 
+- Check our [demos](https://drive.google.com/open?id=0B7FM2yuGVreASmw3b2YxM2xtdUk)
+
 
 ## License
 BSD license.
