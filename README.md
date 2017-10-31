@@ -3,7 +3,7 @@ This repository is a slight modification of NeuralTalk(https://github.com/karpat
 
 - The **input** is a two-hot vector in which the first 1 corresponds to a certain chord progression of 2-bar lengths (ex: C - Am), and the second 1 corresponds to the part annotation, e.g., verse, chorus, etc.
 
-- The **output** is a sequence of strings that are to be converted to notes in a midi file. It is currently in the form of **pitch;pos;duration**. 
+- The **output** is a MIDI file with generated melody converted from generated strings. Generated strings are currently in the form of **pitch;pos;duration**.
 
 
 ## Dependencies
