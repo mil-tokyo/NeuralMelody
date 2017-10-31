@@ -11,6 +11,8 @@ This repository is a slight modification of [NeuralTalk](https://github.com/karp
 
 - **[hmmlearn](https://github.com/hmmlearn/hmmlearn)**
 
+- **[mido](http://mido.readthedocs.io/en/latest/installing.html)** 
+
 ## Usage
 - To train
 
