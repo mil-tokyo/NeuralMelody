@@ -29,7 +29,7 @@ This repository is a slight modification of NeuralTalk(https://github.com/karpat
 
 - To generate MIDI file with HMM-generated input (by default, song will be generated based on our pre-set test input)
 
-  `python generate_midi.py cv/checkpoint_file gen_chords True`
+  `python generate_midi.py cv/checkpoint_file --gen_chords True`
 
 
 - Notes are inserted to MIDI files on a real-valued time instead of discrete musical lengths, so make sure to quantize it on any sequencer (e.g. GarageBand). 1/16 is recommended. 
