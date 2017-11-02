@@ -1,9 +1,12 @@
 ## Overview
-This repository is a slight modification of [NeuralTalk](https://github.com/karpathy/neuraltalk).
+
+- This repository implements melody generation model proposed in [this paper](https://arxiv.org/abs/1710.11549).
 
 - The **input** is a two-hot vector in which the first 1 corresponds to a certain chord progression of 2-bar lengths (ex: C - Am), and the second 1 corresponds to the part annotation, e.g., verse, chorus, etc.
 
 - The **output** is a MIDI file with generated melody converted from generated strings. Generated strings are currently in the form of **pitch;pos;duration**.
+
+-  This repository is a modification of [NeuralTalk](https://github.com/karpathy/neuraltalk).
 
 
 ## Dependencies
@@ -37,8 +40,15 @@ This repository is a slight modification of [NeuralTalk](https://github.com/karp
 
 - Notes are inserted to MIDI files on a real-valued time instead of discrete musical lengths, so make sure to quantize it on any sequencer (e.g. GarageBand). 1/16 is recommended. 
 
-- Check our [demos](https://drive.google.com/open?id=0B7FM2yuGVreASmw3b2YxM2xtdUk)
+- Check our [demos](https://soundcloud.com/iclr2018eval)
 
+## Citation
+`@article{andrew2017neuralmelody,
+    author={Andrew Shin, Leopold Crestel, Hiroharu Kato, Kuniaki Saito, Katsunori Ohnishi, Masataka Yamaguchi, Masahiro Nakawaki, Yoshitaka Ushiku, Tatsuya Harada},
+    title={Melody Generation for Pop Music via Word Representation of Musical Properties},
+    journal={arXiv preprint arXiv:1710.11549},
+    year={2017}
+}`
 
 ## License
 BSD license.
