@@ -18,9 +18,8 @@ from imagernn.imagernn_utils import decodeGenerator, eval_split
 
 import chord_sequence_generation
 
-tempo = 120
 program_num = 80
-new_midi_data = pretty_midi.PrettyMIDI(initial_tempo=tempo)
+base_tempo = 120
 new_track = pretty_midi.Instrument(program_num,is_drum=False,name='melody')
 bass_track = pretty_midi.Instrument(38,is_drum=False,name='bass')
 
@@ -39,7 +38,7 @@ def convert_dur(d):
   nu,de = d.split('/')
   return float(nu)/float(de)
 
-def two_hot_encoding(parts, chords, num_chords, num_parts): 
+def two_hot_encoding(parts, chords, num_chords, num_parts):
   T = len(parts)
   output = np.zeros((T, num_chords+num_parts))
   for index, (part, chord) in enumerate(zip(parts, chords)):
@@ -47,11 +46,32 @@ def two_hot_encoding(parts, chords, num_chords, num_parts):
     output[index, chord] = 1
   return output
 
+def adjust_tempo(new_midi_data):
+  bpm = new_midi_data.get_tempo_changes()[-1][0]
+  min_length = 60. / (bpm * 4)
+
+  for instrument in new_midi_data.instruments:
+    for note in instrument.notes:
+      note.start *= base_tempo / bpm
+      note.end *= base_tempo / bpm
+
+def quantize(new_midi_data):
+  bpm = new_midi_data.get_tempo_changes()[-1][0]
+  min_length = 60. / (bpm * 4)
+
+  for instrument in new_midi_data.instruments:
+    for note in instrument.notes:
+      note.start = round(note.start / min_length) * min_length
+      note.end = round(note.end / min_length) * min_length
+      if note.end - note.start == 0:
+        note.end += min_length
+
 def gen_from_scratch(params):
   # load the checkpoint
   checkpoint_path = params['checkpoint_path']
   max_images = params['max_images']
   fout = params['output_file']
+  tempo = params['tempo']
 
   print 'loading checkpoint %s' % (checkpoint_path, )
   checkpoint = pickle.load(open(checkpoint_path, 'rb'))
@@ -65,11 +85,11 @@ def gen_from_scratch(params):
   if dump_folder:
     print 'creating dump folder ' + dump_folder
     os.system('mkdir -p ' + dump_folder)
-    
+
   # Generate the chord sequence
   parts, chords, num_chords, num_parts = chord_sequence_generation.main(params)
   imgs = two_hot_encoding(parts, chords, num_chords, num_parts)
-  
+
   blob = {} # output blob which we will dump to JSON for visualizing the results
   blob['params'] = params
   blob['checkpoint_params'] = checkpoint_params
@@ -85,7 +105,7 @@ def gen_from_scratch(params):
     kwparams = { 'beam_size' : params['beam_size'] }
     img_dict = {'feat': img}
     Ys = BatchGenerator.predict([{'image':img_dict}], model, checkpoint_params, **kwparams)
-  
+
     # now evaluate and encode the top prediction
     top_predictions = Ys[0] # take predictions for the first (and only) image we passed in
     top_prediction = top_predictions[0] # these are sorted with highest on top
@@ -106,6 +126,7 @@ def gen_from_scratch(params):
       note=pretty_midi.Note(90,pitch,pos,pos+dur)
       new_track.notes.append(note)
 
+  new_midi_data = pretty_midi.PrettyMIDI(initial_tempo=tempo)
   new_midi_data.instruments.append(new_track)
 
   # pre-set chord preogression
@@ -117,6 +138,9 @@ def gen_from_scratch(params):
     bass_track.notes.append(pretty_midi.Note(90,chord_to_pitch[n1],2*time,2*time+1))
     bass_track.notes.append(pretty_midi.Note(90,chord_to_pitch[n2],2*time+1,2*(time+1)))
   new_midi_data.instruments.append(bass_track)
+  adjust_tempo(new_midi_data)
+  if params['quantize']:
+    quantize(new_midi_data)
   new_midi_data.write(fout)
 
 def gen_from_test(params):
@@ -124,6 +148,7 @@ def gen_from_test(params):
   checkpoint_path = params['checkpoint_path']
   max_images = params['max_images']
   fout = params['output_file']
+  tempo = params['tempo']
 
   print 'loading checkpoint %s' % (checkpoint_path, )
   checkpoint = pickle.load(open(checkpoint_path, 'rb'))
@@ -135,7 +160,7 @@ def gen_from_test(params):
   if dump_folder:
     print 'creating dump folder ' + dump_folder
     os.system('mkdir -p ' + dump_folder)
-    
+
   # fetch the data provider
   dp = getDataProvider(dataset)
 
@@ -190,7 +215,7 @@ def gen_from_test(params):
     all_references.append(references)
     all_candidates.append(candidate)
 
-    img_blob['candidate'] = {'text': candidate, 'logprob': top_prediction[0]}    
+    img_blob['candidate'] = {'text': candidate, 'logprob': top_prediction[0]}
     blob['imgblobs'].append(img_blob)
 
   # use perl script to eval BLEU score for fair comparison to other research work
@@ -227,6 +252,7 @@ def gen_from_test(params):
       note=pretty_midi.Note(90,pitch,pos,pos+dur)
       new_track.notes.append(note)
 
+  new_midi_data = pretty_midi.PrettyMIDI(initial_tempo=tempo)
   new_midi_data.instruments.append(new_track)
 
   # pre-set chord preogression
@@ -274,10 +300,13 @@ def gen_from_test(params):
   bass_track.notes.append(pretty_midi.Note(90,40,37,38))
   bass_track.notes.append(pretty_midi.Note(90,38,38,39))
   bass_track.notes.append(pretty_midi.Note(90,43,39,40))
- 
+
   new_midi_data.instruments.append(bass_track)
+  adjust_tempo(new_midi_data)
+  if params['quantize']:
+    quantize(new_midi_data)
   new_midi_data.write(fout)
- 
+
 
 def main(params):
   if params["gen_chords"]:
@@ -293,13 +322,15 @@ if __name__ == "__main__":
   parser.add_argument('-m', '--max_images', type=int, default=-1, help='max images to use')
   parser.add_argument('-d', '--dump_folder', type=str, default="", help='dump the relevant images to a separate folder with this name?')
   parser.add_argument('-o', '--output_file', type=str, default="generate_test.mid",help='name of the midi file generated')
-  
+
   # Chords sequence generation ?
   parser.add_argument('--gen_chords', type=bool, default=False, help='whether the chords and parts are automatically generated or picked from the test set')
   parser.add_argument('--gen_seq_length', type=int, default=8, help='length of the generated sequences')
   parser.add_argument('--nh_part', dest='nh_part', type=int, default=20, help='number of hidden states for the part\'s HMM')
   parser.add_argument('--nh_chords', dest='nh_chords', type=int, default=40, help='number of hidden states for the part\'s HMM')
   parser.add_argument('--num_gen', dest='num_gen', type=int, default=1, help='number of sequences generated')
+  parser.add_argument('--quantize', dest='quantize', type=int, default=0, help='')
+  parser.add_argument('--tempo', dest='tempo', type=int, default=120, help='beats per minute')
 
   parser.add_argument('--DEBUG', type=bool, default=False, help='debug mode')
 
