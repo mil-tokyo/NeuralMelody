@@ -97,7 +97,7 @@ def RNNGenCost(batch, model, params, misc):
     reg_range_derivative = get_reg_range_derivative(P, reg_range_weights, reg_range_cost_)
     reg_range_cost = reg_range_coeff * reg_range_cost_.sum() # Sum reg cost along time axis for display
     # IMPORTANT REMINDER : do not multiply by coeff before computing gradient !!
-    
+
     # lets be clever and optimize for speed here to derive the gradient in place quickly
     for iy,y in enumerate(gtix):
       P[iy,y] -= 1 # softmax derivatives are pretty simple
@@ -110,7 +110,7 @@ def RNNGenCost(batch, model, params, misc):
 
   # add L2 regularization cost and gradients
   reg_cost = 0.0
-  if regc > 0:    
+  if regc > 0:
     for p in misc['regularize']:
       mat = model[p]
       reg_cost += 0.5 * regc * np.sum(mat * mat)
@@ -187,7 +187,7 @@ def main(params):
   json_worker_status = {}
   json_worker_status['params'] = params
   json_worker_status['history'] = []
-  
+
   for it in xrange(max_iters):
     if abort: break
     t0 = time.time()
@@ -249,7 +249,7 @@ def main(params):
     if (((it+1) % eval_period_in_iters) == 0 and it < max_iters - 5) or is_last_iter:
       val_ppl2 = eval_split('val', dp, model, params, misc) # perform the evaluation on VAL set
       print 'validation perplexity = %f' % (val_ppl2, )
-      
+
       # abort training if the perplexity is no good
       min_ppl_or_abort = params['min_ppl_or_abort']
       if val_ppl2 > min_ppl_or_abort and min_ppl_or_abort > 0:
@@ -273,6 +273,8 @@ def main(params):
           checkpoint['wordtoix'] = misc['wordtoix']
           checkpoint['ixtoword'] = misc['ixtoword']
           try:
+            if not os.path.exists(params['checkpoint_output_directory']):
+              os.makedirs(params['checkpoint_output_directory'])
             pickle.dump(checkpoint, open(filepath, "wb"))
             print 'saved checkpoint in %s' % (filepath, )
           except Exception, e: # todo be more clever here
@@ -292,7 +294,7 @@ if __name__ == "__main__":
   parser.add_argument('--worker_status_output_directory', dest='worker_status_output_directory', type=str, default='status/', help='directory to write worker status JSON blobs to')
   parser.add_argument('--write_checkpoint_ppl_threshold', dest='write_checkpoint_ppl_threshold', type=float, default=-1, help='ppl threshold above which we dont bother writing a checkpoint to save space')
   parser.add_argument('--init_model_from', dest='init_model_from', type=str, default='', help='initialize the model parameters from some specific checkpoint?')
-  
+
   # model parameters
   parser.add_argument('--generator', dest='generator', type=str, default='lstm', help='generator to use')
   parser.add_argument('--image_encoding_size', dest='image_encoding_size', type=int, default=256, help='size of the image encoding')
